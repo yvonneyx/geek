@@ -17,6 +17,48 @@ function addCSSRules(text) {
   rules.push(...ast.stylesheet.rules);
 }
 
+// function isIntersectionSelector(selector) {
+//   var nums = 0;
+//   if (selector.charAt(0).match(/^[a-zA-Z]$/)) {
+//     nums++;
+//   }
+//   for (let c of selector) {
+//     if (c === "#" || c === ".") {
+//       nums++;
+//     }
+//   }
+//   return nums > 1;
+// }
+
+// function splitIntersectionSelector(selector) {
+//   //div.class1 .class1.class2 .class1#id
+//   var selectors = [];
+//   var newSelector = "";
+//   for (let c of selector) {
+//     if (selector.indexOf(c) !== 0 && (c === "#" || c === ".")) {
+//       selectors.push(newSelector);
+//       newSelector = "";
+//     }
+//     newSelector += c;
+//   }
+//   selectors.push(newSelector);
+//   return selectors;
+// }
+
+// function match(element, selector) {
+//   if (isIntersectionSelector(selector)) {
+//     var childSelectors = splitIntersectionSelector(selector);
+//     let res = true;
+//     for (let s of childSelectors) {
+//       res = res && singlematch(element, s);
+//     }
+//     return res;
+//   } else {
+//     singlematch(element, selector);
+//   }
+// }
+
+// function singlematch(element, selector) {
 function match(element, selector) {
   if (!selector || !element.attributes) {
     return false;
@@ -46,6 +88,9 @@ function computeCSS(element) {
 
   for (let rule of rules) {
     var selectorParts = rule.selectors[0].split(" ").reverse();
+
+    // 作业（可选）： 实现复合选择器，实现支持空格的Class选择器
+    // 支持 div .class1.class2即同时拥有class1和class2
 
     if (!match(element, selectorParts[0])) {
       continue;
