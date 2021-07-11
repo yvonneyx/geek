@@ -18,8 +18,11 @@ function addCSSRules(text) {
 }
 
 function computeCSS(element) {
-  console.log(rules);
-  console.log("compute CSS for Element", element);
+  // console.log(rules);
+  // console.log("compute CSS for Element", element);
+
+  //elements表示该元素的所有父元素，同时遵循从内而外的顺序
+  var elements = stack.slice().reverse();
 }
 
 function emit(token) {
