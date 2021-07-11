@@ -13,8 +13,24 @@ let rules = [];
 //函数addCSSRules目的是把CSS规则暂时缓存到一个数组里
 function addCSSRules(text) {
   var ast = css.parse(text);
-  console.log(JSON.stringify(ast, null, "   "));
+  // console.log(JSON.stringify(ast, null, "   "));
   rules.push(...ast.stylesheet.rules);
+}
+
+function match(element, selector) {
+  if (!selector || !element.attributes) {
+    return false;
+  }
+
+  if (selector.charAt(0) == "#") {
+    var attr = element.attributes.filter((attr) => (attr.name = "id"))[0];
+    return attr && attr.value === selector.replace("#", "");
+  } else if (selector.charAt(0) == ".") {
+    var attr = element.attributes.filter((attr) => (attr.name = "class"))[0];
+    return attr && attr.value === selector.replace(".", "");
+  } else {
+    return element.tagName === selector;
+  }
 }
 
 function computeCSS(element) {
@@ -31,7 +47,7 @@ function computeCSS(element) {
   for (let rule of rules) {
     var selectorParts = rule.selectors[0].split(" ").reverse();
 
-    if (!match(element, selectorParts)) {
+    if (!match(element, selectorParts[0])) {
       continue;
     }
 
