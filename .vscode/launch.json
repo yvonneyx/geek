@@ -1,34 +1,36 @@
 {
-	// 使用 IntelliSense 了解相关属性。 
-	// 悬停以查看现有属性的描述。
-	// 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-	"version": "0.2.0",
-	"configurations": [
-
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "findstr2",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}/finite-state-machine/findstr2.js"
-		},{
-			"type": "node",
-			"request": "launch",
-			"name": "KMP",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}/finite-state-machine/KMP.js"
-		},{
-			"type": "node",
-			"request": "launch",
-			"name": "http",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}/http-request/client.js"
-		}
-	]
+  // 使用 IntelliSense 了解相关属性。
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "KMP",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/toy-browser/finite-state-machine/KMP.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "http",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/toy-browser/http-request/client.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "parser",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/toy-browser/html-parse/client.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "css-computing",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/toy-browser/css-computing/client.js"
+    }
+  ]
 }
