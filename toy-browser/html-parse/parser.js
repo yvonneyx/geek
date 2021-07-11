@@ -2,14 +2,11 @@ const EOF = Symbol("EOF"); // EOF: End Of File
 
 let currentToken = null;
 let currentAttribute = null;
+let currentTextNode = null;
 
 let stack = [{ type: "document", children: [] }];
 
 function emit(token) {
-  if (token.type != "text") {
-    return;
-  }
-
   let top = stack[stack.length - 1];
 
   if (token.type == "startTag") {
@@ -22,6 +19,7 @@ function emit(token) {
     element.tagName = token.tagName;
 
     for (let p in token) {
+      // key
       if (p != "type" && p != "tagName") {
         element.attributes.push({
           name: p,
@@ -39,13 +37,22 @@ function emit(token) {
 
     currentTextNode = null;
   } else if (token.type == "endTag") {
-    if (top.name != token.tagName) {
+    if (top.tagName != token.tagName) {
       throw new Error("Tag start end doesn't match");
     } else {
       stack.pop();
     }
 
     currentTextNode = null;
+  } else if (token.type == "text") {
+    if (currentTextNode == null) {
+      currentTextNode = {
+        type: "text",
+        content: "",
+      };
+      top.children.push(currentTextNode);
+    }
+    currentTextNode.content += token.content;
   }
 }
 
