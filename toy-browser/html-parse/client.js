@@ -1,4 +1,5 @@
 const net = require("net");
+const parser = require("./parser.js");
 
 class Request {
   constructor(options) {
@@ -61,6 +62,10 @@ class Request {
       resolve("");
     });
   }
+}
+
+class Response {
+
 }
 
 // 使用常量来表示状态机
@@ -183,7 +188,6 @@ class TrunkedBodyParser {
       }
     } else if (this.current === this.READING_TRUNK) {
       this.content.push(char);
-      // this.content += char;
       this.length--;
       if (this.length === 0) {
         this.current = this.WAITING_NEW_LINE;
