@@ -1,3 +1,5 @@
+const css = require("css");
+
 const EOF = Symbol("EOF"); // EOF: End Of File
 
 let currentToken = null;
@@ -5,6 +7,15 @@ let currentAttribute = null;
 let currentTextNode = null;
 
 let stack = [{ type: "document", children: [] }];
+
+let rules = [];
+
+//函数addCSSRules目的是把CSS规则暂时缓存到一个数组里
+function addCSSRules(text) {
+  var ast = css.parse(text);
+  console.log(JSON.stringify(ast, null, "   "));
+  rules.push(...ast.stylesheet.rules);
+}
 
 function emit(token) {
   let top = stack[stack.length - 1];
@@ -40,6 +51,9 @@ function emit(token) {
     if (top.tagName != token.tagName) {
       throw new Error("Tag start end doesn't match");
     } else {
+      if (top.tagName === "style") {
+        addCSSRules(top.children[0].content);
+      }
       stack.pop();
     }
 
