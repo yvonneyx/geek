@@ -23,6 +23,35 @@ function computeCSS(element) {
 
   //elements表示该元素的所有父元素，同时遵循从内而外的顺序
   var elements = stack.slice().reverse();
+
+  if (!element.computedStyle) {
+    element.computedStyle = {};
+  }
+
+  for (let rule of rules) {
+    var selectorParts = rule.selectors[0].split(" ").reverse();
+
+    if (!match(element, selectorParts)) {
+      continue;
+    }
+
+    let matched = false;
+
+    var j = 1;
+    for (var i = 0; i < elements.length; i++) {
+      if (match(elements[i], selectorParts[j])) {
+        j++;
+      }
+    }
+
+    if (j >= selectorParts.length) {
+      matched = true;
+    }
+
+    if (matched) {
+      console.log("Element:", element, "; matched rule:", rule);
+    }
+  }
 }
 
 function emit(token) {
@@ -47,7 +76,9 @@ function emit(token) {
       }
     }
 
-    computeCSS(element);
+    if (rules) {
+      computeCSS(element);
+    }
 
     top.children.push(element);
     element.parent = top;
