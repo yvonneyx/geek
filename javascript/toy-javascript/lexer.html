@@ -1,0 +1,53 @@
+<!-- 做一个玩具版本的JS引擎，来理解语言的背后工作原理和语法与语义的结合-->
+
+<!-- lexer 词法分析器-->
+
+<!-- exec() 方法在一个指定字符串中执行一个搜索匹配。返回一个结果数组或 null。
+
+在设置了 global 或 sticky 标志位的情况下（如 /foo/g or /foo/y），JavaScript RegExp 对象是有状态的。他们会将上次成功匹配后的位置记录在 lastIndex 属性中。使用此特性，exec() 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），而相比之下， String.prototype.match() 只会返回匹配到的结果。
+
+如果你只是为了判断是否匹配（true或 false），可以使用 RegExp.test() 方法，或者 String.search() 方法。 -->
+
+
+<script>
+
+	// 管理正则表达式的工具compileRegExp函数
+
+	function compileRegExp(xregexp, name) {
+		// console.log(typeof(xregexp[name])); // object => /<WhiteSpace>|<LineTerminator>|<Comments>/
+		// console.log(xregexp[name].source); // string => WhiteSpace>|<LineTerminator>|<Comments>
+
+		let regexp = xregexp[name].source.replace(/\<([^>]+)\>/g, function (str, $1) {
+			return compileRegExp(xregexp, $1);
+		})
+		return regexp;
+	}
+
+	let regexp = compileRegExp({
+		InputElement: /<WhiteSpace>|<LineTerminator>|<Comments>/,
+		WhiteSpace: / /,
+		LineTerminator: /\n/,
+		// SingleComment以换行符作为结束标识
+		Comments: /\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\//,
+	}, 'InputElement')
+
+	console.log(regexp); // => |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\/
+	console.log(JSON.stringify(regexp)); // => " |\\n|\\/\\/[^\\n]*|\\/\\*([^*]|\\*[^\\/])*\\*\\/"
+	console.log(new RegExp(regexp, 'g')); // => / |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\//g
+
+	function scan(str) {
+		let regexp = / |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\/|[1-9][0-9]*|0/g;
+		while (regexp.lastIndex < str.length) {
+			let r = regexp.exec(str);
+			console.log(JSON.stringify(r[0]));
+		}
+	}
+
+	scan(`
+	12
+	33
+	10078
+		// hello world 
+		/* hello world */
+	`);
+</script>

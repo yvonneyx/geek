@@ -117,7 +117,7 @@ SingleComment ::= "/" "/" <any>*
 MultipleComment ::= "/" "*" ([^*] | "*" [^/])* "*" "/"
 
 Token ::= Literal | Keywords | Identifier | Punctuator
-Literal ::= NumberLiteral | StringLiteral | BooleanLiteral | NullListeral
+Literal ::= NumericLiteral | StringLiteral | BooleanLiteral | NullListeral
 Keywords ::= "if" | "else" | "for" | "function" | ...
 Punctuator ::= "+" | "-" | "*" | "/" | "{" | "}" | ...
 
