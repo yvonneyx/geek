@@ -8,7 +8,7 @@
 
 如果你只是为了判断是否匹配（true或 false），可以使用 RegExp.test() 方法，或者 String.search() 方法。 -->
 
-
+<pre>
 <script>
 
 	// 管理正则表达式的工具compileRegExp函数
@@ -17,37 +17,62 @@
 		// console.log(typeof(xregexp[name])); // object => /<WhiteSpace>|<LineTerminator>|<Comments>/
 		// console.log(xregexp[name].source); // string => WhiteSpace>|<LineTerminator>|<Comments>
 
-		let regexp = xregexp[name].source.replace(/\<([^>]+)\>/g, function (str, $1) {
+		if (xregexp[name] instanceof RegExp) {
+			return xregexp[name].source;
+		}
+
+		let regexp = xregexp[name].replace(/\<([^>]+)\>/g, function (str, $1) {
 			return compileRegExp(xregexp, $1);
 		})
 		return regexp;
 	}
 
-	let regexp = compileRegExp({
-		InputElement: /<WhiteSpace>|<LineTerminator>|<Comments>/,
-		WhiteSpace: / /,
-		LineTerminator: /\n/,
-		// SingleComment以换行符作为结束标识
-		Comments: /\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\//,
-	}, 'InputElement')
-
-	console.log(regexp); // => |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\/
-	console.log(JSON.stringify(regexp)); // => " |\\n|\\/\\/[^\\n]*|\\/\\*([^*]|\\*[^\\/])*\\*\\/"
-	console.log(new RegExp(regexp, 'g')); // => / |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\//g
+	// console.log(regexp); // => |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\/
+	// console.log(JSON.stringify(regexp)); // => " |\\n|\\/\\/[^\\n]*|\\/\\*([^*]|\\*[^\\/])*\\*\\/"
+	// console.log(new RegExp(regexp, 'g')); // => / |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\//g
 
 	function scan(str) {
-		let regexp = / |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\/|[1-9][0-9]*|0/g;
-		while (regexp.lastIndex < str.length) {
+		let regexp = new RegExp(compileRegExp({
+			InputElement: "<WhiteSpace>|<LineTerminator>|<Comments>|<Token>",
+			WhiteSpace: / /,
+			LineTerminator: /\n|\r/,
+			Comments: /\/\/[^\n]*|\/\*(?:[^*]|\*[^\/])*\*\//,
+			Token: "<Literal>|<Keywords>|<Identifer>|<Punctuator>",
+			Literal: "<NumericLiteral>|<BooleanLiteral>|<StringLiteral>|<NullLiteral>",
+			NumericLiteral: /(?:[1-9][0-9]*|0)(?:\.[0-9]*)?|\.[0-9]+/,
+			BooleanLiteral: /true|false/,
+			StringLiteral: /\"([^"\n]|\\[\s\S])*\"|\'([^'\n]|\\[\s\S])*\'/,
+			NullLiteral: /null/,
+			Identifer: /[a-zA-Z_$][a-zA-Z0-9_$]*/,
+			Keywords: /if|else|for|function/,
+			Punctuator: /\,|\.|\{|\}|\+|\*|\?|\:|\(|\=|\<|\+\+|\=\=|\=\>|\*|\)|\[|\]|;/,
+		}, 'InputElement'), 'g')
+
+		while (regexp.lastIndex < str.length
+			&& regexp.lastIndex !== -1) {
 			let r = regexp.exec(str);
 			console.log(JSON.stringify(r[0]));
+
+			document.write(r[0]);
+
+			if (!r[0].length) {
+				break;
+			}
 		}
 	}
 
 	scan(`
-	12
-	33
-	10078
-		// hello world 
-		/* hello world */
+	for (let i = 0; i < 3; i++) {
+		for (let j = 0; j < 3; j++) {
+				let cell = document.createElement("div");
+				cell.classList.add('cell');
+				cell.innerText = pattern[i * 3 + j] == 2 ? "❌" : pattern[i * 3 + j] == 1 ? "⭕️" : "";
+				cell.addEventListener("click", () => userMove(j, i));
+				board.appendChild(cell);
+			}
+			board.appendChild(document.createElement("br"));
+		}
 	`);
+
 </script>
+</pre>
