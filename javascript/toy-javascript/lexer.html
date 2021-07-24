@@ -11,28 +11,70 @@
 <pre>
 <script>
 
-	// 管理正则表达式的工具compileRegExp函数
-
-	function compileRegExp(xregexp, name) {
-		// console.log(typeof(xregexp[name])); // object => /<WhiteSpace>|<LineTerminator>|<Comments>/
-		// console.log(xregexp[name].source); // string => WhiteSpace>|<LineTerminator>|<Comments>
-
-		if (xregexp[name] instanceof RegExp) {
-			return xregexp[name].source;
+	class XRegExp {
+		constructor(source, flag, root = "root") {
+			this.table = new Map();
+			this.regexp = new RegExp(this.compileRegExp(source, root, 0).source, flag);
+			// console.log(this.regexp);
+			console.log(this.table);
 		}
 
-		let regexp = xregexp[name].replace(/\<([^>]+)\>/g, function (str, $1) {
-			return compileRegExp(xregexp, $1);
-		})
-		return regexp;
+		// 管理正则表达式的工具compileRegExp函数
+		compileRegExp(source, name, start) {
+			// console.log(typeof(xregexp[name])); // object => /<WhiteSpace>|<LineTerminator>|<Comments>/
+			// console.log(xregexp[name].source); // string => WhiteSpace>|<LineTerminator>|<Comments>
+
+			if (source[name] instanceof RegExp) {
+				return {
+					source: source[name].source,
+					length: 0
+				}
+			}
+
+			let length = 0;
+
+			let regexp = source[name].replace(/\<([^>]+)\>/g, (str, $1) => {
+				this.table.set(start + length, $1);
+
+				++length;
+
+				let r = this.compileRegExp(source, $1, start + length);
+
+				length += r.length;
+				return "(" + r.source + ")";
+			})
+			return {
+				source: regexp,
+				length: length
+			};
+		}
+
+		// 实现分组捕获
+		exec(string) {
+			let r = this.regexp.exec(string);
+			for (let i = 1; i < r.length; i++) {
+				if (r[i] !== undefined) {
+					// console.log(this.table.get(i - 1));
+					r[this.table.get(i - 1)] = r[i];
+				}
+			}
+			// console.log(JSON.stringify(r[0]))
+			return r;
+		}
+
+		get lastIndex() {
+			return this.regexp.lastIndex;
+		}
+
+		set lastIndex(value) {
+			return this.regexp.lastIndex = value;
+		}
+
 	}
 
-	// console.log(regexp); // => |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\/
-	// console.log(JSON.stringify(regexp)); // => " |\\n|\\/\\/[^\\n]*|\\/\\*([^*]|\\*[^\\/])*\\*\\/"
-	// console.log(new RegExp(regexp, 'g')); // => / |\n|\/\/[^\n]*|\/\*([^*]|\*[^\/])*\*\//g
 
 	function scan(str) {
-		let regexp = new RegExp(compileRegExp({
+		let regexp = new XRegExp({
 			InputElement: "<WhiteSpace>|<LineTerminator>|<Comments>|<Token>",
 			WhiteSpace: / /,
 			LineTerminator: /\n|\r/,
@@ -41,17 +83,17 @@
 			Literal: "<NumericLiteral>|<BooleanLiteral>|<StringLiteral>|<NullLiteral>",
 			NumericLiteral: /(?:[1-9][0-9]*|0)(?:\.[0-9]*)?|\.[0-9]+/,
 			BooleanLiteral: /true|false/,
-			StringLiteral: /\"([^"\n]|\\[\s\S])*\"|\'([^'\n]|\\[\s\S])*\'/,
+			StringLiteral: /\"(?:[^"\n]|\\[\s\S])*\"|\'(?:[^'\n]|\\[\s\S])*\'/,
 			NullLiteral: /null/,
 			Identifer: /[a-zA-Z_$][a-zA-Z0-9_$]*/,
 			Keywords: /if|else|for|function/,
 			Punctuator: /\,|\.|\{|\}|\+|\*|\?|\:|\(|\=|\<|\+\+|\=\=|\=\>|\*|\)|\[|\]|;/,
-		}, 'InputElement'), 'g')
+		}, 'g', 'InputElement');
 
 		while (regexp.lastIndex < str.length
 			&& regexp.lastIndex !== -1) {
 			let r = regexp.exec(str);
-			console.log(JSON.stringify(r[0]));
+			// console.log(JSON.stringify(r[0]));
 
 			document.write(r[0]);
 
