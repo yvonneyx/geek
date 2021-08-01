@@ -85,8 +85,8 @@
 			BooleanLiteral: /true|false/,
 			StringLiteral: /\"(?:[^"\n]|\\[\s\S])*\"|\'(?:[^'\n]|\\[\s\S])*\'/,
 			NullLiteral: /null/,
-			Identifer: /[a-zA-Z_$][a-zA-Z0-9_$]*/,
-			Keywords: /if|else|for|function/,
+			Identifier: /[a-zA-Z_$][a-zA-Z0-9_$]*/,
+			Keywords: /if|else|for|function|var|let/,
 			Punctuator: /\,|\.|\{|\}|\+|\*|\?|\:|\(|\=|\<|\+\+|\=\=|\=\>|\*|\)|\[|\]|;/,
 		}, 'g', 'InputElement');
 
