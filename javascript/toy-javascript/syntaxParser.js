@@ -1,3 +1,4 @@
+import { scan } from "./lexParser.js";
 // 第一层数组表示“或”，同一数组表示“与”
 
 let syntax = {
@@ -47,6 +48,9 @@ function closure(state) {
   hash[JSON.stringify(state)] = state;
   let queue = [];
   for (let symbol in state) {
+    if (symbol.match(/^\$/)) {
+      break;
+    }
     queue.push(symbol);
   }
   while (queue.length) {
@@ -60,11 +64,15 @@ function closure(state) {
           if (!current[part]) current[part] = {};
           current = current[part]; //下移一格
         }
-        current.$isRuleEnd = true;
+        current.$reduceType = symbol;
+        current.$reduceLength = rule.length;
       }
     }
   }
   for (let symbol in state) {
+    if (symbol.match(/^\$/)) {
+      break;
+    }
     if (hash[JSON.stringify(state[symbol])]) {
       state[symbol] = hash[JSON.stringify(state[symbol])];
     } else {
@@ -78,8 +86,57 @@ let end = {
 };
 
 let start = {
-  // Program: end,
-  IfStatement: end,
+  Program: end,
 };
 
 closure(start);
+
+let source = `
+  let a;
+`;
+
+function parse(source) {
+  let stack = [start];
+  let symbolStack = [];
+  function reduce() {
+    let state = stack[stack.length - 1];
+
+    if (state.$reduceType) {
+      let children = [];
+      for (let i = 0; i < state.$reduceLength; i++) {
+        stack.pop();
+        children.push(symbolStack.pop());
+      }
+
+      /*create a non-terminal symbol and shift it*/
+      return {
+        type: state.$reduceType,
+        children: children.reverse(),
+      };
+    } else {
+      throw new Error("unexpected token");
+    }
+  }
+
+  function shift(symbol) {
+    let state = stack[stack.length - 1];
+
+    if (symbol.type in state) {
+      stack.push(state[symbol.type]);
+      symbolStack.push(symbol);
+    } else {
+      /*reduce to non-terminal symbol*/
+      shift(reduce());
+      shift(symbol);
+    }
+  }
+
+  for (let symbol /*terminal symbol*/ of scan(source)) {
+    shift(symbol);
+    // console.log(symbol);
+  }
+
+  console.log(reduce());
+}
+
+parse(source);
