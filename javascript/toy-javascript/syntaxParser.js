@@ -26,18 +26,24 @@ let syntax = {
     ["AdditiveExpression", "-", "MultiplicativeExpression"],
   ],
   MultiplicativeExpression: [
-    ["UnaryExpression"],
+    ["PrimaryExpression"],
     ["MultiplicativeExpression", "*", "UnaryExpression"],
     ["MultiplicativeExpression", "/", "UnaryExpression"],
   ],
-  UnaryExpression: [
-    ["PrimaryExpression"],
-    ["+", "PrimaryExpression"],
-    ["-", "PrimaryExpression"],
-    ["typeof", "PrimaryExpression"],
-  ],
+  /* UnaryExpression: [
+     ["PrimaryExpression"],
+     ["+", "PrimaryExpression"],
+     ["-", "PrimaryExpression"],
+     ["typeof", "PrimaryExpression"],
+   ], */
   PrimaryExpression: [["(", "Expression", ")"], ["Literal"], ["Identifier"]],
-  Literal: [["Number"]],
+  Literal: [
+    ["NumericLiteral"],
+    ["BooleanLiteral"],
+    ["StringLiteral"],
+    ["NullLiteral"],
+    ["RegularExpression"],
+  ],
 };
 
 // 避免死循环，利用回环来实现无限状态机
@@ -154,6 +160,69 @@ let evaluator = {
   VariableDeclaration(node) {
     console.log("Declare variable", node.children[1].name);
   },
+  ExpressionStatement(node) {
+    return evaluate(node.children[0]);
+  },
+  Expression(node) {
+    return evaluate(node.children[0]);
+  },
+  AdditiveExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0]);
+    } else {
+      // todo
+    }
+  },
+  MultiplicativeExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0]);
+    } else {
+      // todo
+    }
+  },
+  PrimaryExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0]);
+    }
+  },
+  Literal(node) {
+    return evaluate(node.children[0]);
+  },
+  NumericLiteral(node) {
+    // 十进制：string to number
+    let str = node.value;
+    let l = str.length;
+    let value = 0;
+    let n = 10;
+
+    if (str.match(/^0b/)) {
+      n = 2;
+      l -= 2;
+    } else if (str.match(/^0o/)) {
+      n = 8;
+      l -= 2;
+    } else if (str.match(/^0x/)) {
+      n = 16;
+      l -= 2;
+    }
+
+    while (l--) {
+      let c = str.charCodeAt(str.length - l - 1);
+      if (c >= "a".charCodeAt(0)) {
+        c = c - "a".charCodeAt(0) - 10;
+      } else if (c >= "A".charCodeAt(0)) {
+        c = c - "A".charCodeAt(0) - 10;
+      } else if (c >= "0".charCodeAt(0)) {
+        c = c - "0".charCodeAt(0);
+      }
+      value = value * n + c;
+    }
+
+    console.log(value);
+    return Number(node.value);
+
+    // return evaluate(node.children[0]);
+  },
   EOF() {
     return null;
   },
@@ -168,8 +237,7 @@ function evaluate(node) {
 /////////////////////////////////////////////////
 
 let source = `
-  let a;
-  let b;
+  0b01101;
 `;
 
 let tree = parse(source);
