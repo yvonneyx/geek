@@ -1,6 +1,11 @@
 <script type="module" src="./syntaxParser.js"></script>
 
-<textarea id="source">"abbc";</textarea>
+<textarea id="source">
+	{
+		a:1,
+		b:2
+	};
+</textarea>
 <button onclick="js.evaluate(js.parse(document.getElementById('source').value));">Run</button>
 
 <!-- 
