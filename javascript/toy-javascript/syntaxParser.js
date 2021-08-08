@@ -19,8 +19,11 @@ let syntax = {
     ["function", "Identifier", "(", ")", "{", "StatementList", "}"],
   ],
   ExpressionStatement: [["Expression", ";"]],
-  Expression: [["AdditiveExpression"]],
+  Expression: [["AssignmentExpression"]],
+  AssignmentExpression: [
+    // ["LeftHandSideExpression", "=", "RightHandSideExpression"],
     ["Identifier", "=", "AssignmentExpression"],
+    ["AdditiveExpression"],
   ],
   AdditiveExpression: [
     ["MultiplicativeExpression"],
@@ -68,7 +71,7 @@ function closure(state) {
   let queue = [];
   for (let symbol in state) {
     if (symbol.match(/^\$/)) {
-      break;
+      continue;
     }
     queue.push(symbol);
   }
@@ -175,8 +178,8 @@ class EnvironmentRecord {
 // 运行时用于存储变量
 class ExecutionContext {
   constructor() {
-    this.lexicalEnvironment = { a: 2 };
-    this.variableEnvironment = {};
+    this.lexicalEnvironment = {};
+    this.variableEnvironment = this.lexicalEnvironment;
     this.realm = {};
   }
 }
@@ -212,7 +215,8 @@ let evaluator = {
     return evaluate(node.children[0]);
   },
   VariableDeclaration(node) {
-    console.log("Declare variable", node.children[1].name);
+    let runningExectionContext = ecs[ecs.length - 1];
+    runningExectionContext.lexicalEnvironment[node.children[1].name];
   },
   ExpressionStatement(node) {
     return evaluate(node.children[0]);
