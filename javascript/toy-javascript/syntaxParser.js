@@ -20,6 +20,8 @@ let syntax = {
   ],
   ExpressionStatement: [["Expression", ";"]],
   Expression: [["AdditiveExpression"]],
+    ["Identifier", "=", "AssignmentExpression"],
+  ],
   AdditiveExpression: [
     ["MultiplicativeExpression"],
     ["AdditiveExpression", "+", "MultiplicativeExpression"],
@@ -173,12 +175,26 @@ class EnvironmentRecord {
 // 运行时用于存储变量
 class ExecutionContext {
   constructor() {
-    this.lexicalEnvironment = {};
+    this.lexicalEnvironment = { a: 2 };
     this.variableEnvironment = {};
     this.realm = {};
   }
 }
 
+class Reference {
+  constructor(object, property) {
+    this.object = object;
+    this.property = property;
+  }
+
+  set(value) {
+    this.object[this.property] = value;
+  }
+
+  get() {
+    return this.object[this.property];
+  }
+}
 
 let evaluator = {
   Program(node) {
@@ -268,16 +284,16 @@ let evaluator = {
         i++;
         let c = node.value[i];
         let map = {
-          "\'": "\'",
-          '\"': '\"',
+          "'": "'",
+          '"': '"',
           "\\": "\\",
-          "0": String.fromCharCode(0x0000),
-          "b": String.fromCharCode(0x0008),
-          "f": String.fromCharCode(0x000c),
-          "n": String.fromCharCode(0x000a),
-          "r": String.fromCharCode(0x000d),
-          "t": String.fromCharCode(0x0009),
-          "v": String.fromCharCode(0x000b),
+          0: String.fromCharCode(0x0000),
+          b: String.fromCharCode(0x0008),
+          f: String.fromCharCode(0x000c),
+          n: String.fromCharCode(0x000a),
+          r: String.fromCharCode(0x000d),
+          t: String.fromCharCode(0x0009),
+          v: String.fromCharCode(0x000b),
         };
         if (c in map) {
           result.push(map[c]);
@@ -324,13 +340,26 @@ let evaluator = {
       configurable: true,
     });
   },
+  AssignmentExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0]);
+    }
+
+    let left = evaluate(node.children[0]);
+    let right = evaluate(node.children[2]);
+    left.set(right);
+  },
+  Identifier(node) {
+    let runningExectionContext = ecs[ecs.length - 1];
+    return new Reference(runningExectionContext.lexicalEnvironment, node.name);
+  },
   EOF() {
     return null;
   },
 };
 
-let realm = new Realm;
-let ecs = [new ExecutionContext];
+let realm = new Realm();
+let ecs = [new ExecutionContext()];
 // realm的产生是在JS引擎一个新实例被建立出来后
 
 function evaluate(node) {

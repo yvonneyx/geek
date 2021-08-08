@@ -1,12 +1,9 @@
 <script type="module" src="./syntaxParser.js"></script>
 
 <textarea id="source">
-	{
-		a:1,
-		b:2
-	};
+	a;
 </textarea>
-<button onclick="js.evaluate(js.parse(document.getElementById('source').value));">Run</button>
+<button onclick="console.log(js.evaluate(js.parse(document.getElementById('source').value)));">Run</button>
 
 <!-- 
 	由于module需要跨预策略所以无法用文件系统的方式调试
