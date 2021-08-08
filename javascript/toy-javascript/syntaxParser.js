@@ -218,10 +218,40 @@ let evaluator = {
       value = value * n + c;
     }
 
-    console.log(value);
     return Number(node.value);
 
     // return evaluate(node.children[0]);
+  },
+  StringLiteral(node) {
+    // SingleEscapeCharacter: ' " \ b f n r t v需要转义
+    let result = [];
+    for (let i = 1; i < node.value.length - 1; i++) {
+      if (node.value[i] === "\\") {
+        i++;
+        let c = node.value[i];
+        let map = {
+          "\'": "\'",
+          '\"': '\"',
+          "\\": "\\",
+          "0": String.fromCharCode(0x0000),
+          "b": String.fromCharCode(0x0008),
+          "f": String.fromCharCode(0x000c),
+          "n": String.fromCharCode(0x000a),
+          "r": String.fromCharCode(0x000d),
+          "t": String.fromCharCode(0x0009),
+          "v": String.fromCharCode(0x000b),
+        };
+        if (c in map) {
+          result.push(map[c]);
+        } else {
+          result.push(c);
+        }
+      } else {
+        result.push(node.value[i]);
+      }
+    }
+    console.log(result);
+    return result.join("");
   },
   EOF() {
     return null;
@@ -236,10 +266,12 @@ function evaluate(node) {
 
 /////////////////////////////////////////////////
 
-let source = `
-  0b01101;
-`;
+// let source = `
+//   "abc";
+// `;
 
-let tree = parse(source);
+// let tree = parse(source);
 
-evaluate(tree);
+// evaluate(tree);
+
+window.js = { parse, evaluate };

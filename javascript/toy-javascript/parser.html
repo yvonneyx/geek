@@ -1,7 +1,7 @@
-<script type="module" src="./syntaxParser.js">
+<script type="module" src="./syntaxParser.js"></script>
 
-</script>
-
+<textarea id="source">"abbc";</textarea>
+<button onclick="js.evaluate(js.parse(document.getElementById('source').value));">Run</button>
 
 <!-- 
 	由于module需要跨预策略所以无法用文件系统的方式调试
