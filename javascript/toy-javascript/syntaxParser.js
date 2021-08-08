@@ -153,6 +153,33 @@ function parse(source) {
   return reduce();
 }
 
+class Realm {
+  constructor() {
+    this.global = new Map();
+    this.Object = new Map();
+    this.Object.call = function () {};
+    this.Object_prototype = new Map();
+  }
+}
+
+class EnvironmentRecord {
+  constructor() {
+    this.thisValue;
+    this.variables = new Map();
+    this.outer = null;
+  }
+}
+
+// 运行时用于存储变量
+class ExecutionContext {
+  constructor() {
+    this.lexicalEnvironment = {};
+    this.variableEnvironment = {};
+    this.realm = {};
+  }
+}
+
+
 let evaluator = {
   Program(node) {
     return evaluate(node.children[0]);
@@ -270,6 +297,7 @@ let evaluator = {
     if (node.children.length === 3) {
       let object = new Map();
       this.PropertyList(node.children[1], object);
+      // Global的Object的原型：包含3个对象，Global对象，Object构造器和Object的原型对象
       // object.prototype =
       return object;
     }
@@ -300,6 +328,10 @@ let evaluator = {
     return null;
   },
 };
+
+let realm = new Realm;
+let ecs = [new ExecutionContext];
+// realm的产生是在JS引擎一个新实例被建立出来后
 
 function evaluate(node) {
   if (evaluator[node.type]) {
