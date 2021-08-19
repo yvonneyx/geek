@@ -17,6 +17,19 @@ export class Evaluator {
     return this.evaluate(node.children[0]);
   }
 
+  IfStatement(node) {
+    let condition = this.evaluate(node.children[2]);
+
+    //解引用
+    if (condition instanceof Reference) {
+      condition = condition.get();
+    }
+
+    if (condition) {
+      return this.evaluate(node.children[4]);
+    }
+  }
+
   StatementList(node) {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0]);
@@ -47,7 +60,18 @@ export class Evaluator {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0]);
     } else {
-      // todo
+		
+      let left = this.evaluate(node.children[0]);
+      let right = this.evaluate(node.children[2]);
+      if (left instanceof Reference) left = left.get();
+      if (right instanceof Reference) right = right.get();
+
+      if (node.children[1] === "+") {
+        return left + right;
+      }
+      if (node.children[1] === "-") {
+        return left - right;
+      }
     }
   }
 
@@ -250,7 +274,7 @@ export class Evaluator {
     if (node.children.length === 3) {
       let obj = this.evaluate(node.children[0]).get();
       let prop = obj.get(node.children[2].name);
-      debugger;
+
       if ("value" in prop) {
         return prop.value;
       }

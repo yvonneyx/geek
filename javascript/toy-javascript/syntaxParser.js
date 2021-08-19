@@ -21,7 +21,6 @@ let syntax = {
   ExpressionStatement: [["Expression", ";"]],
   Expression: [["AssignmentExpression"]],
   AssignmentExpression: [
-    // ["LeftHandSideExpression", "=", "RightHandSideExpression"],
     ["LeftHandSideExpression", "=", "LogicalORExpression"],
     ["LogicalORExpression"],
   ],
@@ -40,13 +39,21 @@ let syntax = {
   ],
   MultiplicativeExpression: [
     ["LeftHandSideExpression"],
-    ["MultiplicativeExpression", "*", "UnaryExpression"],
-    ["MultiplicativeExpression", "/", "UnaryExpression"],
+    ["MultiplicativeExpression", "*", "LeftHandSideExpression"],
+    ["MultiplicativeExpression", "/", "LeftHandSideExpression"],
   ],
   LeftHandSideExpression: [["CallExpression"], ["NewExpression"]],
   CallExpression: [
     ["MemberExpression", "Arguments"],
     ["CallExpression", "Arguments"],
+  ],
+  Arguments: [
+    ["(", ")"],
+    ["(", "ArgumentList", ")"],
+  ],
+  ArgumentList: [
+    ["AssignmentExpression"],
+    ["ArgumentList", ",", "AssignmentExpression"],
   ],
   NewExpression: [["MemberExpression"], ["new", "NewExpression"]], //new a
   /* 
