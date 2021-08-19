@@ -1,4 +1,15 @@
-import { ExecutionContext, Reference, Realm } from "./runtime.js";
+import {
+  ExecutionContext,
+  Reference,
+  Realm,
+  JSObject,
+  JSNumber,
+  JSString,
+  JSUndefined,
+  JSNull,
+  JSSymbol,
+  JSBoolean,
+} from "./runtime.js";
 
 export class Evaluator {
   constructor() {
@@ -45,7 +56,9 @@ export class Evaluator {
 
   VariableDeclaration(node) {
     let runningExectionContext = this.ecs[this.ecs.length - 1];
-    runningExectionContext.lexicalEnvironment[node.children[1].name];
+    runningExectionContext.lexicalEnvironment[
+      node.children[1].name
+    ] = new JSUndefined();
   }
 
   ExpressionStatement(node) {
@@ -60,7 +73,6 @@ export class Evaluator {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0]);
     } else {
-		
       let left = this.evaluate(node.children[0]);
       let right = this.evaluate(node.children[2]);
       if (left instanceof Reference) left = left.get();
@@ -123,7 +135,7 @@ export class Evaluator {
       value = value * n + c;
     }
 
-    return Number(node.value);
+    return new JSNumber(node.value);
 
     // return this.evaluate(node.children[0]);
   }
@@ -156,7 +168,7 @@ export class Evaluator {
         result.push(node.value[i]);
       }
     }
-    return result.join("");
+    return new JSString(result);
   }
 
   ObjectLiteral(node) {
@@ -164,11 +176,11 @@ export class Evaluator {
       return {};
     }
     if (node.children.length === 3) {
-      let object = new Map();
+      let object = new JSObject();
       this.PropertyList(node.children[1], object);
       // Global的Object的原型：包含3个对象，Global对象，Object构造器和Object的原型对象
       // object.prototype =
-      return object;
+      return new JSObject(object);
     }
   }
 
@@ -194,6 +206,18 @@ export class Evaluator {
       enumerable: true,
       configurable: true,
     });
+  }
+
+  true() {
+    return new JSBoolean(true);
+  }
+
+  false() {
+    return new JSBoolean(false);
+  }
+
+  null() {
+    return new JSNull();
   }
 
   AssignmentExpression(node) {
