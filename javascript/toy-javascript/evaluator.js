@@ -9,6 +9,7 @@ import {
   JSNull,
   JSSymbol,
   JSBoolean,
+  CompletionRecord,
 } from "./runtime.js";
 
 export class Evaluator {
@@ -48,19 +49,37 @@ export class Evaluator {
         condition = condition.get();
       }
       if (condition.toBoolean().value) {
-        this.evaluate(node.children[4]);
+        let record = this.evaluate(node.children[4]);
+        if (record.type === "continue") {
+          continue;
+        }
+        if (record.type === "break") {
+          return new CompletionRecord("normal");
+        }
       } else {
-        break;
+        return new CompletionRecord("normal");
       }
     }
+  }
+
+  BreakStatement(node) {
+    return new CompletionRecord("break");
+  }
+
+  ContinueStatement(node) {
+    return new CompletionRecord("continue");
   }
 
   StatementList(node) {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0]);
     } else {
-      this.evaluate(node.children[0]);
-      return this.evaluate(node.children[1]);
+      let record = this.evaluate(node.children[0]);
+      if (record.type === "normal") {
+        return this.evaluate(node.children[1]);
+      } else {
+        return record;
+      }
     }
   }
 
@@ -73,10 +92,11 @@ export class Evaluator {
     runningExectionContext.lexicalEnvironment[
       node.children[1].name
     ] = new JSUndefined();
+    return new CompletionRecord("normal", new JSUndefined());
   }
 
   ExpressionStatement(node) {
-    return this.evaluate(node.children[0]);
+    return new CompletionRecord("normal", this.evaluate(node.children[0]));
   }
 
   Expression(node) {

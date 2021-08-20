@@ -198,3 +198,12 @@ export class Reference {
     return this.object[this.property];
   }
 }
+
+// 语句完成后的记录 type: normal,break,continue,return,throw
+export class CompletionRecord {
+  constructor(type, value, target) {
+    this.type = type || "normal";
+    this.value = value || new JSUndefined();
+    this.target = target || null;
+  }
+}
