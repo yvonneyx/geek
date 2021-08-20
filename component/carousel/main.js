@@ -50,7 +50,7 @@ class TextWrapper {
 	}
   }
 
-class Carousel {
+class Div {
   constructor() {
     this.root = document.createElement("div");
   }
@@ -67,11 +67,11 @@ class Carousel {
 }
 
 let a = (
-  <Carousel id="a">
+  <Div id="a">
     <span>a</span>
     <span>b</span>
     <span>c</span>
-  </Carousel>
+  </Div>
 );
 
 // document.body.appendChild(a);
