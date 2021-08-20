@@ -36,7 +36,7 @@ export class Evaluator {
       condition = condition.get();
     }
 
-    if (condition) {
+    if (condition.toBoolean().value) {
       return this.evaluate(node.children[4]);
     }
   }
@@ -208,12 +208,11 @@ export class Evaluator {
     });
   }
 
-  true() {
+  BooleanLiteral(node) {
+    if (node.value === "false") {
+      return new JSBoolean(false);
+    }
     return new JSBoolean(true);
-  }
-
-  false() {
-    return new JSBoolean(false);
   }
 
   null() {
