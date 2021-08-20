@@ -1,81 +1,38 @@
-function createElement(type, attributes, ...children) {
-  let element;
-  if (typeof type === "string") {
-    element = new ElementWrapper(type);
-  } else {
-    element = new type();
-  }
-  for (let name in attributes) {
-    element.setAttribute(name, attributes[name]);
-  }
-  for (let child of children) {
-    if (typeof child === "string") {
-      child = new TextWrapper(child);
-    }
-    element.appendChild(child);
-  }
-  return element;
-}
+import { Component, createElement } from "./framework.js";
 
-class ElementWrapper {
-  constructor(type) {
-    this.root = document.createElement(type);
-  }
-  setAttribute(name, value) {
-    this.root.setAttribute(name, value);
-  }
-  appendChild(child) {
-    // this.root.appendChild(child);
-    child.mountTo(this.root);
-  }
-  mountTo(parent) {
-    parent.appendChild(this.root);
-  }
-}
-
-
-class TextWrapper {
-	constructor(content) {
-	  this.root = document.createTextNode(content);
-	}
-	setAttribute(name, value) {
-	  this.root.setAttribute(name, value);
-	}
-	appendChild(child) {
-	  // this.root.appendChild(child);
-	  child.mountTo(this.root);
-	}
-	mountTo(parent) {
-	  parent.appendChild(this.root);
-	}
-  }
-
-class Div {
+class Carousel extends Component {
   constructor() {
-    this.root = document.createElement("div");
+    super();
+    this.attributes = Object.create(null);
   }
+
   setAttribute(name, value) {
-    this.root.setAttribute(name, value);
+    this.attributes[name] = value;
   }
-  appendChild(child) {
-	// this.root.appendChild(child);
-	child.mountTo(this.root);
+
+  render() {
+    this.root = document.createElement("div");
+    for (let record of this.attributes.src) {
+      let child = document.createElement("img");
+      child.src = record;
+      this.root.appendChild(child);
+    }
+    return this.root;
   }
+
   mountTo(parent) {
-    parent.appendChild(this.root);
+    parent.appendChild(this.render());
   }
 }
 
-let a = (
-  <Div id="a">
-    <span>a</span>
-    <span>b</span>
-    <span>c</span>
-  </Div>
-);
+let images = [
+  "https://images.pexels.com/photos/8678811/pexels-photo-8678811.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+  "https://images.pexels.com/photos/5847383/pexels-photo-5847383.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+  "https://images.pexels.com/photos/6626710/pexels-photo-6626710.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+  "https://images.pexels.com/photos/3632966/pexels-photo-3632966.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+  "https://images.pexels.com/photos/4376212/pexels-photo-4376212.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+];
 
-// document.body.appendChild(a);
-
-// 此时为Div，但一个正常的div是没有mountTo方法的，所以需要包装一下即为ElementWrapper
+let a = <Carousel src={images} />;
 
 a.mountTo(document.body);
