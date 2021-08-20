@@ -41,6 +41,20 @@ export class Evaluator {
     }
   }
 
+  WhileStatement(node) {
+    while (true) {
+      let condition = this.evaluate(node.children[2]);
+      if (condition instanceof Reference) {
+        condition = condition.get();
+      }
+      if (condition.toBoolean().value) {
+        this.evaluate(node.children[4]);
+      } else {
+        break;
+      }
+    }
+  }
+
   StatementList(node) {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0]);
@@ -82,7 +96,7 @@ export class Evaluator {
         return left + right;
       }
       if (node.children[1] === "-") {
-        return left - right;
+        return new JSNumber(left.value - right.value);
       }
     }
   }
