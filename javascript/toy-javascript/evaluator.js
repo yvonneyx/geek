@@ -328,6 +328,13 @@ export class Evaluator {
     return new Reference(runningExectionContext.lexicalEnvironment, node.name);
   }
 
+  Block(node) {
+    if (node.children.length === 2) {
+      return;
+    }
+    return this.evaluate(node.children[1]);
+  }
+
   EOF() {
     return null;
   }
