@@ -24,30 +24,41 @@ class Carousel extends Component {
     let position = 0;
 
     this.root.addEventListener("mousedown", (event) => {
-      console.log("mousedown");
       let offsetWidth = this.root.offsetWidth;
       let children = this.root.children;
       let startX = event.clientX;
 
       let move = (event) => {
         let x = event.clientX - startX;
- 
-        for (let child of children) {
-          child.style.transition = "none";
-          child.style.transform = `translateX(${
-            -position * offsetWidth + x
+
+        let current = position - (x - (x % offsetWidth)) / offsetWidth;
+
+        for (let offset of [-2, -1, 0, 1, 2]) {
+          let pos = current + offset;
+          pos = (pos + children.length) % children.length;
+          children[pos].style.transition = "none";
+          children[pos].style.transform = `translateX(${
+            -pos * offsetWidth + offset * offsetWidth + (x % offsetWidth)
           }px)`;
         }
       };
 
       let up = (event) => {
-        console.log("mouseup");
         let x = event.clientX - startX;
-        position = position - Math.round(x / 375);
+        position = position - Math.round(x / offsetWidth);
 
-        for (let child of children) {
-          child.style.transition = "";
-          child.style.transform = `translateX(${-position * offsetWidth}px)`;
+        for (let offset of [
+          0,
+          -Math.sign(
+            Math.round(x / offsetWidth) - x + (offsetWidth / 2) * Math.sign(x)
+          ),
+        ]) {
+          let pos = position + offset;
+          pos = (pos + children.length) % children.length;
+          children[pos].style.transition = "";
+          children[pos].style.transform = `translateX(${
+            -pos * offsetWidth + offset * offsetWidth
+          }px)`;
         }
         document.removeEventListener("mousemove", move);
         document.removeEventListener("mouseup", up);
