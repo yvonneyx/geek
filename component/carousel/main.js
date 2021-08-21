@@ -19,6 +19,46 @@ class Carousel extends Component {
       this.root.appendChild(child);
     }
 
+    // 鼠标操作轮播
+
+    let position = 0;
+
+    this.root.addEventListener("mousedown", (event) => {
+      console.log("mousedown");
+      let offsetWidth = this.root.offsetWidth;
+      let children = this.root.children;
+      let startX = event.clientX;
+
+      let move = (event) => {
+        let x = event.clientX - startX;
+ 
+        for (let child of children) {
+          child.style.transition = "none";
+          child.style.transform = `translateX(${
+            -position * offsetWidth + x
+          }px)`;
+        }
+      };
+
+      let up = (event) => {
+        console.log("mouseup");
+        let x = event.clientX - startX;
+        position = position - Math.round(x / 375);
+
+        for (let child of children) {
+          child.style.transition = "";
+          child.style.transform = `translateX(${-position * offsetWidth}px)`;
+        }
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", up);
+      };
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", up);
+    });
+
+    /* 自动轮播
+    
     let currentIndex = 0;
 
     setInterval(() => {
@@ -38,7 +78,7 @@ class Carousel extends Component {
 
         currentIndex = nextIndex;
       }, 16);
-    }, 1500);
+    }, 1500); */
 
     return this.root;
   }
