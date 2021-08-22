@@ -127,7 +127,7 @@ function closure(state) {
   }
   for (let symbol in state) {
     if (symbol.match(/^\$/)) {
-      break;
+      continue;
     }
     if (hash[JSON.stringify(state[symbol])]) {
       state[symbol] = hash[JSON.stringify(state[symbol])];

@@ -112,10 +112,10 @@ export class Evaluator {
       if (left instanceof Reference) left = left.get();
       if (right instanceof Reference) right = right.get();
 
-      if (node.children[1] === "+") {
-        return left + right;
+      if (node.children[1].type === "+") {
+        return new JSNumber(left.value + right.value);
       }
-      if (node.children[1] === "-") {
+      if (node.children[1].type === "-") {
         return new JSNumber(left.value - right.value);
       }
     }
