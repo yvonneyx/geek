@@ -21,11 +21,16 @@ const PAUSE_TIME = Symbol("pause-time");
 
 export class Timeline {
   constructor() {
+    this.state = "inited";
     this[ANIMATIONS] = new Set();
     this[START_TIME] = new Map();
   }
 
   start() {
+    if (this.state !== "inited") {
+      return;
+    }
+    this.state = "started";
     let startTime = Date.now();
     this[PAUSE_TIME] = 0;
     this[TICK] = () => {
@@ -58,17 +63,25 @@ export class Timeline {
   //   get rate() {}
 
   pause() {
+    if (this.state !== "started") {
+      return;
+    }
+    this.state = "paused";
     this[PAUSE_START] = Date.now();
     cancelAnimationFrame(this[TICK_HANDLER]);
   }
   resume() {
+    if (this.state !== "paused") {
+      return;
+    }
+    this.state = "started";
     this[PAUSE_TIME] += Date.now() - this[PAUSE_START];
     this[TICK]();
   }
 
   reset() {
     this.pause();
-
+    this.state = "inited";
     // let startTime = Date.now();
     this[PAUSE_TIME] = 0;
     this[PAUSE_START] = 0;
@@ -111,7 +124,6 @@ export class Animation {
 
   receive(time) {
     let range = this.endValue - this.startValue;
-    debugger;
     let progress = this.timingFunction(time / this.duration);
     this.object[this.property] = this.template(
       this.startValue + range * progress
