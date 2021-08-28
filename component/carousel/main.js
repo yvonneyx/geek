@@ -13,19 +13,18 @@ let images = [
 let a = <Carousel src={images} />;
 a.mountTo(document.body);
 
-let t1 = new Timeline();
-t1.add(
-  new Animation(
-    {
-      set a(v) {
-        console.log(v);
-      },
+let tl = new Timeline();
+window.tl = tl;
+window.animation = new Animation(
+  {
+    set a(v) {
+      console.log(v);
     },
-    "a",
-    0,
-    100,
-    1000,
-    null
-  )
+  },
+  "a",
+  0,
+  100,
+  1000,
+  null
 );
-t1.start();
+tl.start();

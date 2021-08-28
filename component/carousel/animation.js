@@ -15,23 +15,30 @@ let tick = () => {
 const TICK = Symbol("tick");
 const TICK_HANDLER = Symbol("tick-handler");
 const ANIMATIONS = Symbol("animation");
+const START_TIME = Symbol("start-time");
 
 export class Timeline {
   constructor() {
     this[ANIMATIONS] = new Set();
+    this[START_TIME] = new Map();
   }
 
   start() {
     let startTime = Date.now();
     this[TICK] = () => {
-      let t = Date.now() - startTime;
+      let now = Date.now();
       for (let animation of this[ANIMATIONS]) {
-        let t0 = t;
+        let t;
+        if (this[START_TIME].get(animation) < startTime) {
+          t = now - startTime;
+        } else {
+          t = now - this[START_TIME].get(animation);
+        }
         if (animation.duration < t) {
           this[ANIMATIONS].delete(animation);
-          t0 = animation.duration;
+          t = animation.duration;
         }
-        animation.receive(t0);
+        animation.receive(t);
       }
       requestAnimationFrame(this[TICK]);
     };
@@ -46,8 +53,12 @@ export class Timeline {
 
   reset() {}
 
-  add(animation) {
+  add(animation, startTime) {
+    if (arguments.length < 2) {
+      startTime = Date.now();
+    }
     this[ANIMATIONS].add(animation);
+    this[START_TIME].set(animation, startTime);
   }
 
   remove() {}
@@ -60,6 +71,7 @@ export class Animation {
     startValue,
     endValue,
     duration,
+    delay,
     timingFunction
   ) {
     this.object = object;
@@ -68,6 +80,7 @@ export class Animation {
     this.endValue = endValue;
     this.duration = duration;
     this.timingFunction = timingFunction;
+    this.delay = delay;
   }
 
   receive(time) {
