@@ -36,15 +36,15 @@ element.addEventListener("mousedown", (event) => {
     contexts.delete(context);
 
     if (event.buttons === 0) {
-      element.removeEventListener("mousemove", mousemove);
-      element.removeEventListener("mouseup", mouseup);
+      document.removeEventListener("mousemove", mousemove);
+      document.removeEventListener("mouseup", mouseup);
       isListeningMouse = false;
     }
   };
 
   if (!isListeningMouse) {
-    element.addEventListener("mousemove", mousemove);
-    element.addEventListener("mouseup", mouseup);
+    document.addEventListener("mousemove", mousemove);
+    document.addEventListener("mouseup", mouseup);
     isListeningMouse = true;
   }
 });
@@ -108,6 +108,7 @@ let start = (point, context) => {
     context.handler = null;
   }, 500);
 };
+
 let move = (point, context) => {
   let dx = context.startX - point.clientX,
     dy = context.startY - point.clientY;
@@ -124,9 +125,11 @@ let move = (point, context) => {
     console.log("pan");
   }
 };
+
 let end = (point, context) => {
   if (context.isTap) {
-    console.log("tap");
+    // console.log("tap");
+    dispatch("tap", {});
     clearInterval(context.handler);
   }
   if (context.isPan) {
@@ -137,7 +140,17 @@ let end = (point, context) => {
   }
   console.log("end");
 };
+
 let cancel = (point, context) => {
   clearInterval(context.handler);
   console.log("cancel");
 };
+
+function dispatch(type, properties) {
+  let event = new Event(type);
+  console.log(event);
+  for (let name in properties) {
+    event[name] = properties[name];
+  }
+  element.dispatchEvent(event)
+}
