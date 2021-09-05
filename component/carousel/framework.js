@@ -22,6 +22,8 @@ export function createElement(type, attributes, ...children) {
     }
   };
   processChildren(children);
+  console.log(element);
+
   return element;
 }
 
@@ -61,8 +63,13 @@ class ElementWrapper extends Component {
     this.root = document.createElement(type);
   }
   setAttribute(name, value) {
-    debugger;
-    this.root.setAttribute(name, value);
+    if (name === "style") {
+      for (let val in value) {
+        this.root.style[val] = value[val];
+      }
+    } else {
+      this.root.setAttribute(name, value);
+    }
   }
 }
 

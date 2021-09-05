@@ -52,6 +52,7 @@ let a = (
 
 // let a = <Button>content</Button>;
 
+/*
 let a = (
   <List data={images}>
     {(record) => {
@@ -64,6 +65,30 @@ let a = (
     }}
   </List>
 );
+*/
+
+let a = (
+  <Carousel
+    data={images}
+    onChange={(event) => {
+      console.log(event.detail.position);
+    }}
+    onClick={(event) => {
+      window.location.href = event.detail.data.url;
+    }}
+  >
+    {(record) => {
+      return (
+        <div
+          style={{
+            backgroundImage: `url(${record.img})`,
+          }}
+        />
+      );
+    }}
+  </Carousel>
+);
+
 a.mountTo(document.body);
 
 /*

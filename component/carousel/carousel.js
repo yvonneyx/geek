@@ -1,4 +1,4 @@
-import { Component, STATE, ATTRIBUTE } from "./framework.js";
+import { Component, STATE, ATTRIBUTE, createElement } from "./framework.js";
 import { enableGesture } from "./encapGesture.js";
 import { Timeline, Animation } from "./animation.js";
 import { ease } from "./ease.js";
@@ -10,14 +10,23 @@ export class Carousel extends Component {
     super();
   }
 
+  appendChild(child) {
+    this.template = child;
+  }
+
   render() {
+    /*
     this.root = document.createElement("div");
     this.root.classList.add("carousel");
-    for (let record of this[ATTRIBUTE].src) {
+    for (let record of this[ATTRIBUTE].data) {
       let child = document.createElement("div");
       child.style.backgroundImage = `url(${record.img})`;
       this.root.appendChild(child);
     }
+    */
+
+    this.children = this[ATTRIBUTE].data.map(this.template);
+    this.root = (<div class="carousel">{this.children}</div>).render();
 
     enableGesture(this.root);
 
@@ -44,7 +53,7 @@ export class Carousel extends Component {
 
     this.root.addEventListener("tap", (event) => {
       this.triggerEvent("click", {
-        data: this[ATTRIBUTE].src[this[STATE].position],
+        data: this[ATTRIBUTE].data[this[STATE].position],
         position: this[STATE].position,
       });
     });
@@ -153,7 +162,7 @@ export class Carousel extends Component {
       this.triggerEvent("change", { position: this[STATE].position });
     };
 
-    nextPicStopHandler = setInterval(nextPicture, 3000);
+    // nextPicStopHandler = setInterval(nextPicture, 3000);
 
     /* 鼠标操作轮播
 
