@@ -85,8 +85,11 @@ element.addEventListener("touchcancel", (event) => {
   }
 });
 
-let handler;
-let startX, startY;
+
+// tap
+// pan- panstart panmove panend
+// flick
+// press - pressstart pressend
 
 
 let start = (point, context) => {
@@ -105,11 +108,13 @@ let start = (point, context) => {
   context.isPress = false;
 
   context.handler = setTimeout(() => {
-    console.log("pressstart");
     context.isTap = false;
     context.isPan = false;
     context.isPress = true;
-    context.handler = null;
+	context.handler = null;
+
+    // console.log("pressstart");
+    dispatch("press", {});
   }, 500);
 };
 
@@ -120,8 +125,16 @@ let move = (point, context) => {
   if (!context.isPan && dx ** 2 + dy ** 2 > 100) {
     context.isTap = false;
     context.isPan = true;
-    context.isPress = false;
-    console.log("panstart");
+	context.isPress = false;
+	
+    // console.log("panstart");
+    dispatch("panstart", {
+      startX: context.startX,
+      startY: context.startY,
+      clientX: point.clientX,
+      clientY: context.clientY,
+	});
+	
     clearTimeout(context.handler);
   }
 
@@ -180,7 +193,9 @@ let cancel = (point, context) => {
   console.log("cancel");
 };
 
-function dispatch(type, properties) {
+//////////////////////////////////////////////////////////////////////
+
+export function dispatch(type, properties) {
   let event = new Event(type);
   console.log(event);
   for (let name in properties) {
@@ -188,3 +203,17 @@ function dispatch(type, properties) {
   }
   element.dispatchEvent(event);
 }
+
+// listen => recognize => dispatch
+
+// new Listener(new Recognizer(dispatch))
+
+export class Listener {
+  constructor(element, recognizer) {}
+}
+
+export class Recognizer {
+  constructor() {}
+}
+
+export function enableGesture(element) {}

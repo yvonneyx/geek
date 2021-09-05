@@ -166,14 +166,6 @@ export class JSSymbol extends JSValue {
   }
 }
 
-export class EnvironmentRecord {
-  constructor() {
-    this.thisValue;
-    this.variables = new Map();
-    this.outer = null;
-  }
-}
-
 // 运行时用于存储变量
 export class ExecutionContext {
   constructor(realm, lexicalEnvironment, variableEnvironment) {
@@ -181,6 +173,31 @@ export class ExecutionContext {
     this.lexicalEnvironment = lexicalEnvironment;
     this.variableEnvironment = this.lexicalEnvironment;
     this.realm = realm;
+  }
+}
+
+export class EnvironmentRecord {
+  constructor(outer) {
+    this.variables = new Map();
+    this.outer = outer || null;
+  }
+
+  add(name) {
+    this.variables.set(name, new JSUndefined());
+  }
+  get(name) {
+    this.variables.get(name);
+  }
+  set(name, value = new JSUndefined()) {
+    this.variables.set(name, value);
+  }
+}
+
+export class ObjectEnvironmentRecord {
+  constructor(object) {
+    this.thisValue;
+    this.variables = new Map();
+    this.outer = null;
   }
 }
 
