@@ -11,7 +11,6 @@ export class Dispatcher {
     for (let name in properties) {
       event[name] = properties[name];
     }
-    console.log(event.type);
     this.element.dispatchEvent(event);
   }
 }

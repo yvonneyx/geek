@@ -1,24 +1,21 @@
-import { Component } from "./framework.js";
+import { Component, STATE, ATTRIBUTE } from "./framework.js";
 import { enableGesture } from "./encapGesture.js";
 import { Timeline, Animation } from "./animation.js";
-import { ease, easeIn, easeOut, easeInOut, linear } from "./ease.js";
+import { ease } from "./ease.js";
+
+export { STATE, ATTRIBUTE } from "./framework.js";
 
 export class Carousel extends Component {
   constructor() {
     super();
-    this.attributes = Object.create(null);
-  }
-
-  setAttribute(name, value) {
-    this.attributes[name] = value;
   }
 
   render() {
     this.root = document.createElement("div");
     this.root.classList.add("carousel");
-    for (let record of this.attributes.src) {
+    for (let record of this[ATTRIBUTE].src) {
       let child = document.createElement("div");
-      child.style.backgroundImage = `url(${record})`;
+      child.style.backgroundImage = `url(${record.img})`;
       this.root.appendChild(child);
     }
 
@@ -29,7 +26,7 @@ export class Carousel extends Component {
 
     let children = this.root.children;
 
-    let position = 0;
+    this[STATE].position = 0;
 
     let nextPicStopHandler = null;
 
@@ -45,11 +42,19 @@ export class Carousel extends Component {
       ax = ease(progress) * offsetWidth - offsetWidth;
     });
 
+    this.root.addEventListener("tap", (event) => {
+      this.triggerEvent("click", {
+        data: this[ATTRIBUTE].src[this[STATE].position],
+        position: this[STATE].position,
+      });
+    });
+
     this.root.addEventListener("pan", (event) => {
       let offsetWidth = this.root.offsetWidth;
 
       let x = event.clientX - event.startX - ax;
-      let current = position - (x - (x % offsetWidth)) / offsetWidth;
+      let current =
+        this[STATE].position - (x - (x % offsetWidth)) / offsetWidth;
 
       for (let offset of [-2, -1, 0, 1, 2]) {
         let pos = current + offset;
@@ -68,7 +73,8 @@ export class Carousel extends Component {
 
       let offsetWidth = this.root.offsetWidth;
       let x = event.clientX - event.startX - ax;
-      let current = position - (x - (x % offsetWidth)) / offsetWidth;
+      let current =
+        this[STATE].position - (x - (x % offsetWidth)) / offsetWidth;
 
       let direction = Math.round((x % offsetWidth) / offsetWidth);
 
@@ -99,16 +105,21 @@ export class Carousel extends Component {
         );
       }
 
-      position = position - (x - (x % offsetWidth)) / offsetWidth - direction;
-      position =
-        ((position % children.length) + children.length) % children.length;
+      this[STATE].position =
+        this[STATE].position -
+        (x - (x % offsetWidth)) / offsetWidth -
+        direction;
+      this[STATE].position =
+        ((this[STATE].position % children.length) + children.length) %
+        children.length;
+      this.triggerEvent("change", { position: this[STATE].position });
     });
 
     let nextPicture = () => {
-      let nextIndex = (position + 1) % children.length;
+      let nextIndex = (this[STATE].position + 1) % children.length;
       let offsetWidth = this.root.offsetWidth;
 
-      let current = children[position];
+      let current = children[this[STATE].position];
       let next = children[nextIndex];
 
       t = Date.now();
@@ -116,8 +127,8 @@ export class Carousel extends Component {
       let currentAnimation = new Animation(
         current.style,
         "transform",
-        -position * offsetWidth,
-        -offsetWidth - position * offsetWidth,
+        -this[STATE].position * offsetWidth,
+        -offsetWidth - this[STATE].position * offsetWidth,
         500,
         0,
         ease,
@@ -138,7 +149,8 @@ export class Carousel extends Component {
       timeline.add(currentAnimation);
       timeline.add(nextAnimation);
 
-      position = nextIndex;
+      this[STATE].position = nextIndex;
+      this.triggerEvent("change", { position: this[STATE].position });
     };
 
     nextPicStopHandler = setInterval(nextPicture, 3000);
@@ -217,9 +229,5 @@ export class Carousel extends Component {
 	  }, 1500); */
 
     return this.root;
-  }
-
-  mountTo(parent) {
-    parent.appendChild(this.render());
   }
 }
