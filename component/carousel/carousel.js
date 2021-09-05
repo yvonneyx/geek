@@ -28,6 +28,7 @@ export class Carousel extends Component {
     timeline.start();
 
     let children = this.root.children;
+
     let position = 0;
 
     let nextPicStopHandler = null;
@@ -38,7 +39,7 @@ export class Carousel extends Component {
     this.root.addEventListener("start", (event) => {
       timeline.pause();
       clearInterval(nextPicStopHandler);
-      
+
       let offsetWidth = this.root.offsetWidth;
       let progress = (Date.now() - t) / 500;
       ax = ease(progress) * offsetWidth - offsetWidth;
@@ -66,7 +67,6 @@ export class Carousel extends Component {
       nextPicStopHandler = setInterval(nextPicture, 3000);
 
       let offsetWidth = this.root.offsetWidth;
-
       let x = event.clientX - event.startX - ax;
       let current = position - (x - (x % offsetWidth)) / offsetWidth;
 
@@ -104,13 +104,14 @@ export class Carousel extends Component {
         ((position % children.length) + children.length) % children.length;
     });
 
-
     let nextPicture = () => {
       let nextIndex = (position + 1) % children.length;
       let offsetWidth = this.root.offsetWidth;
 
       let current = children[position];
       let next = children[nextIndex];
+
+      t = Date.now();
 
       let currentAnimation = new Animation(
         current.style,
@@ -138,7 +139,6 @@ export class Carousel extends Component {
       timeline.add(nextAnimation);
 
       position = nextIndex;
-      nextPicStopHandler = setInterval(nextPicture, 3000);
     };
 
     nextPicStopHandler = setInterval(nextPicture, 3000);
