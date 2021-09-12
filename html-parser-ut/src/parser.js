@@ -3,8 +3,7 @@ const EOF = Symbol("EOF"); // EOF: End Of File
 let currentToken = null;
 let currentAttribute = null;
 let currentTextNode = null;
-
-let stack = [{ type: "document", children: [] }];
+let stack;
 
 function emit(token) {
   let top = stack[stack.length - 1];
@@ -87,7 +86,7 @@ function tagOpen(c) {
       type: "text",
       content: c,
     });
-    return;
+    throw new Error('HTML elements all have names that only use characters in the range 0–9, a–z and A–Z.')
   }
 }
 
@@ -260,10 +259,15 @@ function selfClosingStartTag(c) {
 }
 
 export function parseHTML(html) {
+  stack = [{ type: "document", children: [] }];
+  // currentToken = null;
+  // currentAttribute = null;
+  // currentTextNode = null;
+
   let state = data;
   for (let c of html) {
     state = state(c);
   }
   state = state(EOF);
-  return stack;
-};
+  return stack[0];
+}
