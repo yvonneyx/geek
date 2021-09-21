@@ -29,7 +29,9 @@ module.exports = class extends Generator {
       description: "",
       main: "generators/app/index.js",
       scripts: {
-        test: 'echo "Error: no test specified" && exit 1',
+        "build": "webpack",
+        "test": "mocha --require @babel/register",
+        "coverage": "nyc mocha --require @babel/register",
       },
       author: "",
       license: "ISC",
@@ -43,15 +45,38 @@ module.exports = class extends Generator {
     this.npmInstall(
       [
         "webpack",
+        "webpack-cli",
         "vue-loader",
         "vue-template-compiler",
         "vue-style-loader",
         "css-loader",
+        "babel-loader",
         "copy-webpack-plugin",
+        "@babel/core",
+        "@babel/preset-env",
+        "@babel/register",
+        "@istanbuljs/nyc-config-babel",
+        "babel-plugin-istanbul",
+        "mocha",
+        "nyc",
       ],
       { "save-dev": true }
     );
-
+    this.fs.copyTpl(
+      this.templatePath("sample-test.js"),
+      this.destinationPath("test/sample-test.js"),
+      {}
+    );
+    this.fs.copyTpl(
+      this.templatePath(".babelrc"),
+      this.destinationPath(".babelrc"),
+      {}
+    );
+    this.fs.copyTpl(
+      this.templatePath(".nycrc"),
+      this.destinationPath(".nycrc"),
+      {}
+    );
     this.fs.copyTpl(
       this.templatePath("Hello.vue"),
       this.destinationPath("src/Hello.vue"),
